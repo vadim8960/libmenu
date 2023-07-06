@@ -47,7 +47,7 @@ cmake-build-*/
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
 
-# File-based project format
+# File-based_example project format
 *.iws
 
 # IntelliJ
@@ -71,7 +71,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-# Editor-based Rest Client
+# Editor-based_example Rest Client
 .idea/httpRequests
 
 # Android studio 3.1+ serialized cache file
