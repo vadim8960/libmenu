@@ -1,8 +1,9 @@
 #include <iostream>
 
-#include <libmenu/menu.h>
+#include <libmenu/Menu.hpp>
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+	LibMenu::MenuItem item;
+	std::cout << "Hello, World!" << std::endl;
+	return 0;
 }

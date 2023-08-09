@@ -11,16 +11,19 @@ option(LIBMENU_BUILD_DOCS "Build libmenu documentation" OFF)
 add_library(${PROJECT_NAME})
 
 set(LIBMENU_INCLUDES
-        include/libmenu/menu.h
+        include/libmenu/Menu.hpp
+        include/libmenu/MenuItem.hpp
         )
 
 set(LIBMENU_SOURCES
         ${LIBMENU_INCLUDES}
-        src/menu.cpp)
+        src/MenuItem.cpp)
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${LIBMENU_SOURCES})
 
 target_sources(${PROJECT_NAME} PRIVATE ${LIBMENU_SOURCES})
+
+add_subdirectory(libs/fmt)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include/${PROJECT_NAME}>
