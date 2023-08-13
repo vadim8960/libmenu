@@ -13,11 +13,16 @@ add_library(${PROJECT_NAME})
 set(LIBMENU_INCLUDES
         include/libmenu/Menu.hpp
         include/libmenu/MenuItem.hpp
+        include/libmenu/MenuDrawer.hpp
+        include/libmenu/MenuDrawerImpl.hpp
         )
 
 set(LIBMENU_SOURCES
         ${LIBMENU_INCLUDES}
-        src/MenuItem.cpp)
+        src/MenuItem.cpp
+        src/MenuDrawer.cpp
+        src/MenuDrawerImpl.cpp
+        )
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${LIBMENU_SOURCES})
 
