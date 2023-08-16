@@ -12,7 +12,17 @@ void func2(int a, int& b) {
 }
 
 struct A {
-	int b;
+	int b{};
+	A() {}
+	A(A&& other) {
+		b = other.b;
+		other.b = 0;
+		std::cout << "A move ctor\n";
+	}
+	A(const A& other) {
+		b = other.b;
+		std::cout << "A copy ctor\n";
+	}
 };
 
 void func_class(A& a) {
