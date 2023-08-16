@@ -7,8 +7,16 @@ void func1(int a) {
 	std::cout << "func1 with arguments: a = " << a << std::endl;
 }
 
-void func2(int a, int b) {
+void func2(int a, int& b) {
 	std::cout << "func2 with arguments: a = " << a << ", b = " << b << std::endl;
+}
+
+struct A {
+	int b;
+};
+
+void func_class(A& a) {
+	std::cout << "func_class with b = " << a.b << std::endl;
 }
 
 void func3(int a, int b, int c) {}
@@ -22,7 +30,7 @@ class Call {
 public:
 	Call() = default;
 	explicit Call(Callable func, Args&& ...args) : _func(func),
-											_args(std::make_tuple(std::forward<Args>(args)...)) {}
+												   _args(std::make_tuple(std::forward<Args>(args)...)) {}
 	void operator()() {
 		if (_func)
 			std::apply(_func, _args);
@@ -61,8 +69,15 @@ Call<Callable, Args...> make_call(Callable callable, Args&& ...args) {
 }
 
 int main() {
-	auto call = make_call(func1, 5);
-	call();
+	auto call1 = make_call(func1, 5);
+	call1();
+	int n = 10;
+	auto call2 = make_call(func2, 1, std::move(n));
+	call2();
+	A classs;
+	classs.b = 100;
+	auto call_class = make_call(func_class, std::move(classs));
+	call_class();
 //	decltype(&func1) f1 = func1;
 //	void (* f)(int) = wrapper<decltype(&func1), &func1>;
 //	void (* f2)(int, int) = wrapper<void (*)(int, int), &func2>;
