@@ -1,7 +1,20 @@
 #include <iostream>
+#include <tuple>
 
 #include <libmenu/Menu.hpp>
 #include <thread>
+
+struct A {
+	int b{};
+	A() {}
+	A(A&& other) {
+		b = other.b;
+		other.b = 0;
+	}
+	A(const A& other) {
+		b = other.b;
+	}
+};
 
 void func1(int a) {
 	std::cout << "func1 with arguments: a = " << a << std::endl;
@@ -11,27 +24,37 @@ void func2(int a, int& b) {
 	std::cout << "func2 with arguments: a = " << a << ", b = " << b << std::endl;
 }
 
-struct A {
-	int b{};
-	A() {}
-	A(A&& other) {
-		b = other.b;
-		other.b = 0;
-		std::cout << "A move ctor\n";
-	}
-	A(const A& other) {
-		b = other.b;
-		std::cout << "A copy ctor\n";
-	}
-};
-
 void func_class(A& a) {
 	std::cout << "func_class with b = " << a.b << std::endl;
 }
 
-void func3(int a, int b, int c) {}
+template< typename Callable, typename Tuple, bool IsEnd, int Idx, int ...N >
+struct execute_impl {
+	static void execute(Callable f, Tuple&& tuple) {
+		return execute_impl<Callable, Tuple,
+							Idx == 1 + sizeof...(N),
+							Idx,
+							N...,
+							sizeof...(N)>::execute(f, tuple);
+	}
+};
 
-void func4(int a, int b, int c, int d) {}
+template< typename Callable, typename Tuple, int Idx, int ...N >
+struct execute_impl<Callable, Tuple, true, Idx, N...> {
+	static void execute(Callable f, Tuple&& tuple) {
+		if (f) {
+			return f(std::get<N>(std::forward<Tuple>(tuple))...);
+		}
+	}
+};
+
+template< typename Callable, typename Tuple, int... N >
+void execute(Callable f, Tuple&& t) {
+	typedef typename std::decay<Tuple>::type type;
+	execute_impl<Callable, Tuple,
+				 0 == std::tuple_size<type>::value,
+				 std::tuple_size<type>::value>::execute(f, std::forward<Tuple>(t));
+}
 
 template< typename Callable, typename ...Args >
 class Call {
@@ -43,7 +66,7 @@ public:
 												   _args(std::make_tuple(std::forward<Args>(args)...)) {}
 	void operator()() {
 		if (_func)
-			std::apply(_func, _args);
+			execute(_func, _args);
 	}
 
 	Call(const Call& other) {
@@ -79,22 +102,15 @@ Call<Callable, Args...> make_call(Callable callable, Args&& ...args) {
 }
 
 int main() {
-	auto call1 = make_call(func1, 5);
-	call1();
-	int n = 10;
-	auto call2 = make_call(func2, 1, std::move(n));
-	call2();
-	A classs;
-	classs.b = 100;
-	auto call_class = make_call(func_class, std::move(classs));
-	call_class();
-//	decltype(&func1) f1 = func1;
-//	void (* f)(int) = wrapper<decltype(&func1), &func1>;
-//	void (* f2)(int, int) = wrapper<void (*)(int, int), &func2>;
-//	std::thread t;
-//	function(&func1, 1);
-//	function(&func2, 1, 2);
-//	std::invoke(func1, 1);
+//	std::tuple<int, int> t1 = std::make_tuple(5, 6);
+//	execute(func2, t1);
+//	std::tuple<A> t3 = std::make_tuple(A());
+//	execute(func_class, t3);
+
+	int a = 6;
+	auto call = make_call(func2, 5, std::forward<int>(a));
+	call();
+
 //	int* a = new int(6);
 //	LibMenu::MenuItem item;
 //	item.registerCallback(fun, a);
