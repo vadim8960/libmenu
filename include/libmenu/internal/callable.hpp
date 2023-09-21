@@ -7,7 +7,9 @@
 
 #include <tuple>
 
-template< typename Callable, typename Tuple, bool IsEnd, int Idx, int ...N >
+namespace libmenu::utils {
+
+template <typename Callable, typename Tuple, bool IsEnd, int Idx, int ...N>
 struct execute_impl {
 	static void execute(Callable f, Tuple&& tuple) {
 		return execute_impl<Callable, Tuple,
@@ -18,7 +20,7 @@ struct execute_impl {
 	}
 };
 
-template< typename Callable, typename Tuple, int Idx, int ...N >
+template <typename Callable, typename Tuple, int Idx, int ...N>
 struct execute_impl<Callable, Tuple, true, Idx, N...> {
 	static void execute(Callable f, Tuple&& tuple) {
 		if (f) {
@@ -27,7 +29,7 @@ struct execute_impl<Callable, Tuple, true, Idx, N...> {
 	}
 };
 
-template< typename Callable, typename Tuple, int... N >
+template <typename Callable, typename Tuple, int... N>
 void execute(Callable f, Tuple&& t) {
 	typedef typename std::decay<Tuple>::type type;
 	execute_impl<Callable, Tuple,
@@ -35,10 +37,10 @@ void execute(Callable f, Tuple&& t) {
 				 std::tuple_size<type>::value>::execute(f, std::forward<Tuple>(t));
 }
 
-template< typename Callable, typename ...Args >
+template <typename Callable, typename ...Args>
 class Call {
-	std::tuple<Args...> _args;
 	Callable _func;
+	std::tuple<Args...> _args;
 public:
 	Call() = default;
 	explicit Call(Callable func, Args&& ...args) : _func(func),
@@ -75,9 +77,11 @@ public:
 	}
 };
 
-template< typename Callable, typename ...Args >
+template <typename Callable, typename ...Args>
 Call<Callable, Args...> make_call(Callable callable, Args&& ...args) {
 	return Call(std::forward<Callable>(callable), std::forward<Args>(args)...);
+}
+
 }
 
 #endif //LIBMENU_CALLABLE_HPP
