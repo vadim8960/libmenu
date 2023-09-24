@@ -4,6 +4,8 @@ project(libmenu
         DESCRIPTION "Menu creation library"
         LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+
 option(LIBMENU_BUILD_TESTS "Build libmenu tests" OFF)
 option(LIBMENU_BUILD_EXAMPLES "Build libmenu examples" ON)
 option(LIBMENU_BUILD_DOCS "Build libmenu documentation" OFF)

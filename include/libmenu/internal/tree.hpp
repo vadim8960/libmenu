@@ -6,40 +6,85 @@
 #define LIBMENU_TREE_HPP
 
 #include <vector>
-#include <array>
 #include <memory>
+#include <optional>
+#include <cstring>
+#include <iterator>
+#include <cstddef>
 
 namespace libmenu::types { // begin libmenu::types namespace
 
-using std::shared_ptr;
-using std::vector;
-using std::array;
-using std::size_t;
-using std::make_shared;
+template <typename T>
+class node_type;
 
 template <typename T>
-class node {
+using node = std::shared_ptr<node_type<T>>;
+
+template <typename T, typename ...Args>
+inline node<T> make_node(Args&& ... args) {
+	return std::make_shared<node_type<T>>(args...);
+}
+
+template <typename T>
+class node_type {
 	T item_;
-	vector<shared_ptr<node>> nodes_;
+	std::vector<node<T>> nodes_;
 
 public:
-	node(T item, size_t size) : nodes_(size) {
-		item_ = item;
+// TODO: inheritance from std::vector iterators and make own
+//	using iterator = typename std::vector<node<T>>::iterator;
+//	using const_iterator = typename std::vector<node<T>>::const_iterator;
+//	using reverse_iterator = typename std::vector<node<T>>::reverse_iterator;
+//	using const_reverse_iterator = typename std::vector<node<T>>::const_reverse_iterator;
+
+	node_type(const T& item, std::size_t size = 0) : item_(item), nodes_(size) {}
+
+	void addNode(const node<T>& node, std::size_t idx) {
+		if (idx >= nodes_.size())
+			throw std::runtime_error("id missmatch");
+
+		nodes_[idx] = node;
 	}
 
-	node(const node& other) {
-		item_ = other.item_;
-		nodes_ = other.nodes_;
+	void deleteNode(std::size_t idx) {
+		if (idx >= nodes_.size() || nodes_[idx] == nullptr)
+			throw std::runtime_error("id missmatch");
+		nodes_[idx].reset();
 	}
 
-	node& operator=(const node& other) {
-		item_ = other.item_;
-		nodes_ = other.nodes_;
+	void getSize() const {
+		return nodes_.size();
 	}
 
-	template <const size_t ID>
-	void addNode(node<T>& node) {
-		nodes_[ID] = node;
+	bool isLeaf() const {
+		return getSize() > 0;
+	}
+
+	node<T> operator[](std::size_t idx) {
+		if (idx >= nodes_.size() || nodes_[idx] == nullptr)
+			throw std::runtime_error("id missmatch");
+		return nodes_[idx];
+	}
+
+	node<T> operator[](std::size_t idx) const {
+		if (idx >= nodes_.size() || nodes_[idx] == nullptr)
+			throw std::runtime_error("id missmatch");
+
+		return nodes_[idx];
+	}
+
+	node_type<T>& operator=(const T& val) {
+		item_ = val;
+		return *this;
+	}
+
+	node_type<T>& operator=(T&& val) {
+		std::swap(item_, val);
+		return *this;
+	}
+
+	operator T() {
+		return item_;
 	}
 };
 
